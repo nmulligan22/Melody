@@ -1,0 +1,22 @@
+/*
+ * Melody Player
+ *
+ * Authors: Allison Obourn and Marty Stepp
+ * Version: Tue 2015/03/04
+ * 
+ * This file contains the main method to run the program.
+ */
+
+import java.io.File;
+import java.io.IOException;
+
+public class Main {
+	/*
+	 * Runs the program.
+	 */
+	public static void main(String[] args) throws IOException {
+		//new MelodyGUI();
+                Melody myMelody = new Melody(new File ("res/melodies/epona.txt"));
+                System.out.println(myMelody);
+	}
+}
