@@ -1,0 +1,175 @@
+// TODO: write this class
+
+import java.util.*;
+import java.io.*;
+import melody.audio.*;
+
+public class Melody {
+
+    private String artist;
+    private String title;
+    private Note[] melody;
+
+    public Melody(File file) throws IOException {
+        Scanner reader = new Scanner(file);
+        title = reader.nextLine();
+        artist = reader.nextLine();
+        String numOfNotes = reader.nextLine();
+        int size = Integer.parseInt(numOfNotes);
+        melody = new Note[size];
+        String line = "";
+        int m = 0;
+        while (reader.hasNextLine()) {
+            line = reader.nextLine();
+            int space1 = line.indexOf(" ");
+            String endOfLine = line.substring(space1 + 5);
+            int space2 = endOfLine.indexOf(" ");
+
+            for (int i = 0; i < size; i++) {
+                double duration = Double.parseDouble(line.substring(0, space1));
+                String pitch = line.substring(space1 + 1, space1 + 2);
+                boolean repeat = Boolean.parseBoolean(endOfLine.substring(space2 + 1));
+                if (Pitch.getValueOf(pitch).equals(Pitch.R)) {
+                    Note n = new Note(duration, repeat);
+                    melody[i] = n;
+                    break;
+                }
+                int octave = Integer.parseInt(line.substring(space1 + 3, space1 + 4));
+                String accidental = endOfLine.substring(0, space2);
+
+                Accidental a = Accidental.getValueOf(accidental);
+                Pitch notePitch = Pitch.getValueOf(pitch);
+
+                Note n = new Note(duration, notePitch, octave, a, repeat);
+                melody[i] = n;
+            }
+        }
+    }
+
+    public void changeTempo(double ratio) {
+        for (int i = 0; i < melody.length; i++) {
+            melody[i].setDuration(melody[i].getDuration() * ratio);
+        }
+
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public double getTotalDuration() {
+        double sum = 0;
+        for (int i = 0; i < melody.length; i++) {
+            if (melody[i].isRepeat() == false) {
+                sum += melody[i].getDuration();
+            } else {
+                int num = i;
+                sum += melody[i].getDuration() * 2;
+                boolean end = false;
+                while (end == false) {
+                    for (int j = i + 1; j < melody.length; j++) {
+                        num++;
+                        if (melody[j].isRepeat() == false) {
+                            sum += melody[j].getDuration() * 2;
+
+                        } else {
+                            sum += melody[j].getDuration() * 2;
+                            end = true;
+                        }
+                    }
+                }
+                i = num;
+            }
+        }
+        return sum;
+    }
+
+    public boolean octaveDown() {
+        for (Note n : melody) {
+            if (n.getOctave() == 1) {
+                return false;
+            }
+        }
+        for (Note n : melody) {
+            n.setOctave(n.getOctave() - 1);
+        }
+        return true;
+    }
+
+    public boolean octaveUp() {
+        for (Note n : melody) {
+            if (n.getOctave() == 10) {
+                return false;
+            }
+        }
+        for (Note n : melody) {
+            n.setOctave(n.getOctave() + 1);
+        }
+        return true;
+    }
+
+    public void play() {
+        ArrayList <Note> rNotes = new ArrayList<Note>();
+        ArrayList <Note> newMelody = new ArrayList<Note>();
+        for (int i = 0; i < melody.length; i++) {
+            if (melody[i].isRepeat()) {
+                rNotes.add(melody[i]);
+                newMelody.add(melody[i]);
+                for (int j = i + 1; j < melody.length; j++) {
+                    rNotes.add(melody[j]);
+                    newMelody.add(melody[j]);
+                    if (melody[j].isRepeat()) {
+                        for (int s = 0; s < rNotes.size(); s++) {
+                            newMelody.add(rNotes.get(s));
+                            i = j + 1;
+                            rNotes = null;
+                        }
+                        break;
+                    }
+                }
+            }
+            newMelody.add(melody[i]);
+        }
+        for (int k = 0; k < newMelody.size(); k++) {
+            newMelody.get(k).play();
+        }
+    }
+
+    public void reverse() {
+        Note[] tempArr = new Note[melody.length];
+        int j = 0;
+        for (int i = melody.length; i > 0; i--) {
+            tempArr[j] = melody[i];
+            j++;
+        }
+        for (int n = 0; n < melody.length; n++) {
+            melody[n] = tempArr[n];
+        }
+    }
+
+    public void mergeMelody(Melody melody2) {
+        ArrayList<Note> newMelody = new ArrayList<>();
+        for (int i = 0; i < melody.length; i++) {
+            newMelody.add(melody[i]);
+        }
+        for (int j = 0; j < melody2.melody.length; j++) {
+            newMelody.add(melody2.melody[j]);
+        }
+        melody = new Note[newMelody.size()];
+        for (int n = 0; n < melody.length; n++) {
+            melody[n] = newMelody.get(n);
+        }
+    }
+
+    public String toString() {
+        String s = "";
+        for (Note note : melody) {
+            s += note + "\n";
+        }
+        return s;
+    }
+}
