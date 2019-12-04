@@ -10,7 +10,7 @@ public class Melody {
     private String title;
     private Note[] melody;
 
-    public Melody(File file) throws IOException {
+   public Melody(File file) throws IOException {
         Scanner reader = new Scanner(file);
         title = reader.nextLine();
         artist = reader.nextLine();
@@ -19,21 +19,26 @@ public class Melody {
         melody = new Note[size];
         String line = "";
         int m = 0;
+        
+        int i=0;
         while (reader.hasNextLine()) {
+           while(true){
             line = reader.nextLine();
             int space1 = line.indexOf(" ");
             String endOfLine = line.substring(space1 + 5);
             int space2 = endOfLine.indexOf(" ");
 
-            for (int i = 0; i < size; i++) {
                 double duration = Double.parseDouble(line.substring(0, space1));
                 String pitch = line.substring(space1 + 1, space1 + 2);
                 boolean repeat = Boolean.parseBoolean(endOfLine.substring(space2 + 1));
+                
                 if (Pitch.getValueOf(pitch).equals(Pitch.R)) {
                     Note n = new Note(duration, repeat);
                     melody[i] = n;
+                    i++;
                     break;
                 }
+                
                 int octave = Integer.parseInt(line.substring(space1 + 3, space1 + 4));
                 String accidental = endOfLine.substring(0, space2);
 
@@ -42,7 +47,9 @@ public class Melody {
 
                 Note n = new Note(duration, notePitch, octave, a, repeat);
                 melody[i] = n;
-            }
+                i++;
+                break;
+           }
         }
     }
 
