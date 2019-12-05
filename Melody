@@ -1,5 +1,9 @@
-// TODO: write this class
 
+/**
+ *
+ * @author KatieWalsh
+ */
+// TODO: write this class
 import java.util.*;
 import java.io.*;
 import melody.audio.*;
@@ -10,7 +14,7 @@ public class Melody {
     private String title;
     private Note[] melody;
 
-   public Melody(File file) throws IOException {
+    public Melody(File file) throws IOException {
         Scanner reader = new Scanner(file);
         title = reader.nextLine();
         artist = reader.nextLine();
@@ -18,27 +22,26 @@ public class Melody {
         int size = Integer.parseInt(numOfNotes);
         melody = new Note[size];
         String line = "";
-        int m = 0;
-        
-        int i=0;
+
+        int i = 0;
         while (reader.hasNextLine()) {
-           while(true){
-            line = reader.nextLine();
-            int space1 = line.indexOf(" ");
-            String endOfLine = line.substring(space1 + 5);
-            int space2 = endOfLine.indexOf(" ");
+            while (true) {
+                line = reader.nextLine();
+                int space1 = line.indexOf(" ");
+                String endOfLine = line.substring(space1 + 5);
+                int space2 = endOfLine.indexOf(" ");
 
                 double duration = Double.parseDouble(line.substring(0, space1));
                 String pitch = line.substring(space1 + 1, space1 + 2);
                 boolean repeat = Boolean.parseBoolean(endOfLine.substring(space2 + 1));
-                
+
                 if (Pitch.getValueOf(pitch).equals(Pitch.R)) {
                     Note n = new Note(duration, repeat);
                     melody[i] = n;
                     i++;
                     break;
                 }
-                
+
                 int octave = Integer.parseInt(line.substring(space1 + 3, space1 + 4));
                 String accidental = endOfLine.substring(0, space2);
 
@@ -49,7 +52,7 @@ public class Melody {
                 melody[i] = n;
                 i++;
                 break;
-           }
+            }
         }
     }
 
@@ -71,33 +74,32 @@ public class Melody {
     public double getTotalDuration() {
         double sum = 0;
         for (int i = 0; i < melody.length; i++) {
-            if (melody[i].isRepeat() == false) {
-                sum += melody[i].getDuration();
-            } else {
-                int num = i;
+            if (melody[i].isRepeat()) {
                 sum += melody[i].getDuration() * 2;
-                boolean end = false;
-                while (end == false) {
-                    for (int j = i + 1; j < melody.length; j++) {
-                        num++;
-                        if (melody[j].isRepeat() == false) {
-                            sum += melody[j].getDuration() * 2;
-
-                        } else {
-                            sum += melody[j].getDuration() * 2;
-                            end = true;
-                        }
+                System.out.println("sum1="+sum);
+                for (int j = i+1; j < melody.length; j++) {
+                    if (melody[j].isRepeat()) {
+                        sum += melody[j].getDuration() * 2;
+                        System.out.println("sum2="+sum);
+                        i=j;
+                        System.out.println("i"+i);
+                        break;
+                    } else if (!melody[j].isRepeat()) {
+                        sum += melody[j].getDuration() * 2;
+                       System.out.println("sum3="+sum);
                     }
                 }
-                i = num;
+            } else if(!melody[i].isRepeat()) {
+                sum += melody[i].getDuration();
+                System.out.println("sum4="+sum);
             }
-        }
+        } 
         return sum;
     }
 
     public boolean octaveDown() {
         for (Note n : melody) {
-            if (n.getOctave() == 1) {
+            if (n.getOctave() < 1) {
                 return false;
             }
         }
@@ -109,7 +111,7 @@ public class Melody {
 
     public boolean octaveUp() {
         for (Note n : melody) {
-            if (n.getOctave() == 10) {
+            if (n.getOctave() > 10) {
                 return false;
             }
         }
@@ -120,8 +122,8 @@ public class Melody {
     }
 
     public void play() {
-        ArrayList <Note> rNotes = new ArrayList<Note>();
-        ArrayList <Note> newMelody = new ArrayList<Note>();
+        ArrayList<Note> rNotes = new ArrayList<Note>();
+        ArrayList<Note> newMelody = new ArrayList<Note>();
         for (int i = 0; i < melody.length; i++) {
             if (melody[i].isRepeat()) {
                 rNotes.add(melody[i]);
@@ -147,14 +149,10 @@ public class Melody {
     }
 
     public void reverse() {
-        Note[] tempArr = new Note[melody.length];
-        int j = 0;
-        for (int i = melody.length; i > 0; i--) {
-            tempArr[j] = melody[i];
-            j++;
-        }
-        for (int n = 0; n < melody.length; n++) {
-            melody[n] = tempArr[n];
+        for (int i = 0; i < melody.length / 2; i++) {
+            Note temp = melody[i];
+            melody[i] = melody[melody.length - i - 1];
+            melody[melody.length - i - 1] = temp;
         }
     }
 
