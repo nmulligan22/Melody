@@ -76,22 +76,18 @@ public class Melody {
         for (int i = 0; i < melody.length; i++) {
             if (melody[i].isRepeat()) {
                 sum += melody[i].getDuration() * 2;
-                System.out.println("sum1="+sum);
                 for (int j = i+1; j < melody.length; j++) {
-                    if (melody[j].isRepeat()) {
+                    if (melody[j].isRest()) {
                         sum += melody[j].getDuration() * 2;
-                        System.out.println("sum2="+sum);
-                        i=j;
+                      i=j;
                         System.out.println("i"+i);
                         break;
                     } else if (!melody[j].isRepeat()) {
                         sum += melody[j].getDuration() * 2;
-                       System.out.println("sum3="+sum);
                     }
                 }
             } else if(!melody[i].isRepeat()) {
                 sum += melody[i].getDuration();
-                System.out.println("sum4="+sum);
             }
         } 
         return sum;
